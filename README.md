@@ -69,7 +69,7 @@ yourself however it has some convenience flags also.
 Currently only SSH is supported but if you wanted to connect to the `ssh-pi` device
 as user `pi` you could run the following.
 ```bash
-$ ssh pi@(remoteit connect ssh-pi 127.0.0.1 --format ssh)
+$ ssh pi@$(remoteit connect ssh-pi 127.0.0.1 --format ssh)
 ```
 
 If you want to bypass using the cached devices you can add the `--nocache` flag.
