@@ -26,7 +26,7 @@ var loginCmd = &cobra.Command{
 		// big ugly function follows
 		config := viper.GetViper()
 
-		rc := client.NewClient(config, nil)
+		rc := getClient(config)
 
 		apikey := config.GetString("apikey")
 

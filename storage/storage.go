@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jasongerard/remoteit-cli/client"
 	"github.com/mitchellh/go-homedir"
+	"io"
 	"io/ioutil"
 	"os"
 )
@@ -13,6 +14,7 @@ type StorageFile string
 
 const LoginFile StorageFile = "login"
 const DeviceCacheFile StorageFile = "devices"
+const HTTPLogFile StorageFile = "http.log"
 
 var configDir string
 
@@ -36,6 +38,12 @@ func Initialize () error {
 
 func getPath(name StorageFile) string {
 	return fmt.Sprintf("%s/%s", configDir, name)
+}
+
+func GetHTTPLogWriter() (io.Writer, error) {
+	p := getPath(HTTPLogFile)
+
+	return os.OpenFile(p, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 }
 
 func WriteFile(name StorageFile, b []byte) error {

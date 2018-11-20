@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/jasongerard/remoteit-cli/client"
 	"github.com/jasongerard/remoteit-cli/storage"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"log"
 	"os"
 	"strings"
 )
@@ -47,6 +49,9 @@ func init() {
 
 	rootCmd.PersistentFlags().Bool("noheader", false, "Disables header in output.")
 	viper.BindPFlag("noheader", rootCmd.PersistentFlags().Lookup("noheader"))
+
+	rootCmd.PersistentFlags().Bool("loghttp", false, "Log HTTP request/response from API to ~/.remoteit/http.log")
+	viper.BindPFlag("loghttp", rootCmd.PersistentFlags().Lookup("loghttp"))
 }
 
 func Execute() {
@@ -63,6 +68,19 @@ func errorAndExit(err error, code int) {
 	fmt.Println(err)
 
 	os.Exit(code)
+}
+
+func getClient(config *viper.Viper) client.Client {
+
+	out, err := storage.GetHTTPLogWriter()
+
+	if err != nil {
+		panic(err)
+	}
+
+	logger := log.New(out, "HTTPLOG ", log.LstdFlags)
+
+	return client.NewClient(config, nil, logger)
 }
 
 func getTokenFromFile() string {

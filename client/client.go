@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
 type rclient struct {
 	c *http.Client
 	config *viper.Viper
+	logger *log.Logger
 }
 
 const urlKey = "remoteit_url"
@@ -179,17 +181,38 @@ func (rc *rclient) do(req *http.Request, resp interface{}) (interface{}, error) 
 
 	hresp, err := rc.c.Do(req)
 
+	var body []byte
+	var errBodyRead error
+	var statusCode int
+
+	// remote sensitve information from headers
+	req.Header.Del("Authorization")
+	req.Header.Del(devKeyHeader)
+	req.Header.Del(tokenKeyHeader)
+
+	// try to read the body
+	if err == nil && hresp != nil {
+		statusCode = hresp.StatusCode
+		body, errBodyRead = ioutil.ReadAll(hresp.Body)
+		defer hresp.Body.Close()
+	}
+
+	if rc.config.GetBool("loghttp") {
+		rc.logger.Printf("Request: [%+v] Response Code: [%v] Response Body: [%s]", req, statusCode, string(body))
+	}
+
+
 	if err != nil {
 		return nil, err
 	}
 
-	defer hresp.Body.Close()
-
-	if hresp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("invalid status from server: %v %s", hresp.StatusCode, hresp.Status)
+	if errBodyRead != nil {
+		return nil, errBodyRead
 	}
 
-	body, err := ioutil.ReadAll(hresp.Body)
+	if statusCode != http.StatusOK {
+		return nil, fmt.Errorf("invalid status from server: %v %s", hresp.StatusCode, hresp.Status)
+	}
 
 	if err != nil {
 		return nil, err
@@ -200,7 +223,7 @@ func (rc *rclient) do(req *http.Request, resp interface{}) (interface{}, error) 
 	return resp, err
 }
 
-func NewClient(config *viper.Viper, httpclient *http.Client) Client {
+func NewClient(config *viper.Viper, httpclient *http.Client, logger *log.Logger) Client {
 	rc := new(rclient)
 
 	rc.config = config
@@ -210,6 +233,8 @@ func NewClient(config *viper.Viper, httpclient *http.Client) Client {
 	} else {
 		rc.c = httpclient
 	}
+
+	rc.logger = logger
 
 	return rc
 }

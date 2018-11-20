@@ -24,7 +24,7 @@ var connectCmd = &cobra.Command{
 		// big ugly function follows
 		config := viper.GetViper()
 
-		rc := client.NewClient(config, nil)
+		rc := getClient(config)
 
 		token := config.GetString("token")
 

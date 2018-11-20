@@ -24,7 +24,7 @@ var deviceCmd = &cobra.Command{
 
 		config := viper.GetViper()
 
-		rc := client.NewClient(config, nil)
+		rc := getClient(config)
 
 		token := config.GetString("token")
 
