@@ -3,7 +3,7 @@
 `remoteit` is a command line interface to remot3.it.
 
 The remot3.it API allows you to login, list devices, and request a proxy connection. You currently 
-cannot add or edit devices from the API.
+cannot add or edit devices using the API.
 
 In order to use `remoteit` you will need a remot3.it account. You can signup for an account at 
 [https://app.remote.it/auth/#/sign-up](https://app.remote.it/auth/#/sign-up).
@@ -73,7 +73,7 @@ $ ssh pi@$(remoteit connect ssh-pi 127.0.0.1 --format ssh)
 ```
 
 If you want to bypass using the cached devices you can add the `--nocache` flag.
-If the device cache doesn't exist (because you have ran `remoteit devices`) running
+If the device cache doesn't exist (because you have not run `remoteit devices`) running
 `remoteit connect` will run as if `--nocache` was passed.
 
 If you do not specify the `hostip` argument, the Last IP used to access the device
